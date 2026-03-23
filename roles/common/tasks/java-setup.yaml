@@ -1,0 +1,20 @@
+
+- name: dnf install maven -y and mysql
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop:
+  - maven
+  - mysql
+
+
+- name: mvn clean package 
+  ansible.builtin.command: mvn clean package
+  args:
+      chdir: /app
+
+- name: Rename file from  target/shipping-1.0.jar shipping.jar
+  ansible.builtin.command: mv target/shipping-1.0.jar shipping.jar
+  args:
+      chdir: /app
+ 

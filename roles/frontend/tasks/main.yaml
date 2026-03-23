@@ -1,0 +1,45 @@
+- name: dnf module enable nginx:1.24 -y
+  ansible.builtin.command: dnf module enable nginx:1.24 -y
+
+- name: dnf install nginx -y
+  ansible.builtin.package:
+    name: nginx
+    state: present
+
+- name: Start service nginx
+  ansible.builtin.service:
+    daemon_reload: true
+    name: nginx
+    enabled: yes
+    state: started
+
+
+
+- name: Remove all files from nginx html directory
+  ansible.builtin.file:
+    path: /usr/share/nginx/html
+    state: absent
+
+- name: crate htnl dir
+  ansible.builtin.file:
+    path: /usr/share/nginx/html
+    state: directory
+
+
+- name: Download frontend code
+  ansible.builtin.get_url:
+    url: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip 
+    dest: /tmp/frontend.zip
+
+- name: Unarchive frontend.zip
+  ansible.builtin.unarchive:
+    src: /tmp/frontend.zip
+    dest: /usr/share/nginx/html 
+    remote_src: yes
+
+- name: Copy file Nginx Reverse Proxy Configuration
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify: Restart service nginx
+    

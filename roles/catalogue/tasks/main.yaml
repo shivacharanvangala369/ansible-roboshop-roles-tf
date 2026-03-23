@@ -1,0 +1,53 @@
+- name: app_setup
+  tags:
+  - deployment
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: app-setup.yaml
+
+- name: nodejs_setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: nodejs-setup.yaml
+
+# - name: nodejs_setup
+#   tags:
+#   - deployment                           # include role will not respact the tags
+#   ansible.builtin.include_role:
+#     name: common
+#     tasks_from: nodejs-setup.yaml
+
+- name: systemd-setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: systemd-setup.yaml
+
+
+- name: Copy file to mongo.repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: Install mongodb-mongosh
+  ansible.builtin.dnf:
+    name: mongodb-mongosh
+    state: present
+
+- name: Load MongoDB master data
+  ansible.builtin.command: mongosh --host "{{ MONGODB_HOST }}" --quiet  --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  register: catalogue_output
+
+
+- name:  check data is loaded into mongodb or not Connect to MongoDB
+  ansible.builtin.shell: mongosh --host "{{ MONGODB_HOST }}"  </app/db/master-data.js
+  when: catalogue_output.stdout | int < 0
+
+- name: demon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start service catalogue
+  ansible.builtin.service:
+    name: catalogue
+    enabled: yes
+    state: restarted

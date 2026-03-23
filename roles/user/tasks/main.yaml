@@ -1,0 +1,26 @@
+- name: app_setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: app-setup.yaml
+
+- name: nodejs-setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: nodejs-setup.yaml
+
+- name: systemd-setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: systemd-setup.yaml
+
+
+- name: demon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: restart user service
+  ansible.builtin.service:
+    name: user
+    enabled: yes
+    state: restarted
+    
