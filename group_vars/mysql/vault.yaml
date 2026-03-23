@@ -7,5 +7,5 @@
 # 6234343833356462363933306166303833663735313633626632
 
 #MYSQL_ROOT_PASSWORD: "{{ lookup('amazon.aws.aws.ssm', '/roboshop/dev/MYSQL_ROOT_PASSWORD', region='us-east-1', decrypt=True ) }}"
-MYSQL_ROOT_PASSWORD: "{{ lookup('amazon.aws.aws_ssm', '/roboshop/dev/MYSQL_ROOT_PASSWORD', region='us-east-1', decrypt=True) }}"
+MYSQL_ROOT_PASSWORD: "{{ lookup('amazon.aws.aws_ssm', '/roboshop/{{ environment }}/MYSQL_ROOT_PASSWORD', region='us-east-1', decrypt=True) }}"
 #MYSQL_ROOT_PASSWORD: "{{ (lookup('amazon.aws.aws_secret','/roboshop/dev/MYSQL_ROOT_PASSWORD', region='us-east-1' ) | from_json).MYSQL_ROOT_PASSWORD }}"
